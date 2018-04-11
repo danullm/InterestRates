@@ -1,3 +1,5 @@
+# Task on yield curve smoothing using splines
+
 Below are the yields (in percentage points) on Swiss government bonds as of July 2015:
 
 | T | 2 | 3 | 4 | 5 | 7 | 10 | 20 | 30 |
