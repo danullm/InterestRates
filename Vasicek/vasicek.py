@@ -77,7 +77,6 @@ def vasicek_discount_curve(r0, theta, kappa, sigma, T = 10, N = 50):
     B = np.array([vasicek_B(kappa, T) for T in t])
     
     tmp = np.exp(-A-B*r0)
-    
     tmp = pd.DataFrame(data = tmp, index = t)
     
     return(tmp)
