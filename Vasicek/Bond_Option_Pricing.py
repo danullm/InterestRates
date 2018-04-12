@@ -8,42 +8,38 @@ Created on Thu Apr 12 15:16:07 2018
 
 from vasicek import *
 
+
+
 def vasicek_bond_option(T0, T1, K, r0, theta, kappa, sigma, typ = 'call'):
-    if T0 == 0:
-        PT0 = 1.
-    else:
-        PT0 = vasicek_discount_curve(r0, theta, kappa, sigma, T = T0, N = 2).loc[T0,0]
-        
-    PT1 = vasicek_discount_curve(r0, theta, kappa, sigma, T = T1, N = 2).loc[T1,0]
+    
+    PT0 = np.exp(-vasicek_A(theta, kappa, sigma, T0, t = 0.) - vasicek_B(kappa, T0)*r0)
+    PT1 = np.exp(-vasicek_A(theta, kappa, sigma, T1, t = 0.) - vasicek_B(kappa, T1)*r0)
 
-    integral = sigma**2/kappa**2*(np.exp(-kappa*T0)-np.exp(-kappa*T1))**2*(np.exp(2*kappa*T0)-1)/2/kappa
+    integral = sigma**2/kappa**2
+    integral = integral * (np.exp(- kappa*T0) - np.exp(- kappa*T1))**2
+    integral = integral * ( np.exp(2*kappa*T0) - 1 ) / (2*kappa)
 
-    d1 = (np.log(PT0/K/PT1) + 0.5*integral)/np.sqrt(integral)
-    d2 = (np.log(PT0/K/PT1) - 0.5*integral)/np.sqrt(integral)
+    d1 = (np.log(PT1/K/PT0) + 0.5*integral)/np.sqrt(integral)
+    d2 = (np.log(PT1/K/PT0) - 0.5*integral)/np.sqrt(integral)
+    
     if typ == 'call':
         p = PT1*norm.cdf(d1)-K*PT0*norm.cdf(d2)
     else:
-        p = K*PT0*norm.cdf(-d2) - PT1*norm.cdf(-d1)
+        p = K* PT0 * norm.cdf(-d2) - PT1 * norm.cdf(-d1)
         
-    p = p.values
     return(p)
 
 if __name__ == '__main__':
 
     r0, theta, kappa, sigma = [0.06, 0.08, 0.86, 0.01]
 
-    P = vasicek_discount_curve(r0, theta, kappa, sigma, T = 10, N = 41)
+    T0 = 0.25
+    T1 = 0.5
 
-    Ks = P.values[1:]/P.values[:-1]
+    PT0 = np.exp(-vasicek_A(theta, kappa, sigma, T0, t = 0.) - vasicek_B(kappa, T0)*r0)
+    PT1 = np.exp(-vasicek_A(theta, kappa, sigma, T1, t = 0.) - vasicek_B(kappa, T1)*r0)
 
-    p = []
+    K = PT1/PT0
+    
+    vasicek_bond_option(T0, T1, K, r0, theta, kappa, sigma, typ = 'call')*10**4
 
-    for i in range(1,40):
-                
-        T0 = P.index[i]
-        T1 = P.index[i+1]
-        K = Ks[i][0]
-        
-        p.append(vasicek_bond_option(T0 , T1, K, r0, theta, kappa, sigma, typ = 'call'))
-
-    plt.plot(p)

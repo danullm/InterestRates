@@ -54,17 +54,19 @@ def vasicek_sd(r0, theta, kappa, sigma, T = 1., N = 100, alpha = 0.90):
 
 #------------------------------------------------------------------------------
 
-def vasicek_B(kappa, T, t = 0):
+def vasicek_B(kappa, T, t = 0.):
     if t > 0:
         T = T-t
     return( (1-np.exp(-kappa*T))/kappa )
 
 #------------------------------------------------------------------------------
     
-def vasicek_A(theta, kappa, sigma, T, t = 0):
+T = 1
+    
+def vasicek_A(theta, kappa, sigma, T, t = 0.):
     if t > 0:
         T = T-t
-    
+       
     tmp = -(theta-sigma**2/2/kappa**2)*(vasicek_B(kappa, T, t) - T + t)
     tmp += sigma**2/4/kappa * vasicek_B(kappa, T, t)**2
     return(tmp)
