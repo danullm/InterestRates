@@ -11,6 +11,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.stats import norm
 
+#------------------------------------------------------------------------------
+
 def vasicek_process(r0, theta, kappa, sigma, T = 1., N = 100, seed = 0):
     if seed != 0:
         np.random.seed(seed)
@@ -23,6 +25,8 @@ def vasicek_process(r0, theta, kappa, sigma, T = 1., N = 100, seed = 0):
     
     return(pd.DataFrame(data = rates, index = [x*dt for x in range(N+1)] ))
 
+#------------------------------------------------------------------------------
+
 def vasicek_mean(r0, theta, kappa, sigma, T = 1., N = 100):
     t = range(N+1)
     dt = T/N
@@ -30,6 +34,8 @@ def vasicek_mean(r0, theta, kappa, sigma, T = 1., N = 100):
     y = [np.exp(-kappa*x)*r0+theta*(1-np.exp(-kappa*x)) for x in t]
     y = np.array(y)
     return(pd.DataFrame(data = y, index = t))
+
+#------------------------------------------------------------------------------
 
 def vasicek_sd(r0, theta, kappa, sigma, T = 1., N = 100, alpha = 0.90):
     dt = T/N
@@ -46,27 +52,60 @@ def vasicek_sd(r0, theta, kappa, sigma, T = 1., N = 100, alpha = 0.90):
         
     return(lower, upper)
 
+#------------------------------------------------------------------------------
+
 def vasicek_B(kappa, T, t = 0):
     if t > 0:
         T = T-t
     return( (1-np.exp(-kappa*T))/kappa )
+
+#------------------------------------------------------------------------------
     
 def vasicek_A(theta, kappa, sigma, T, t = 0):
     if t > 0:
         T = T-t
     
-    tmp = (theta-sigma**2/2/kappa**2)*(vasicek_B(kappa, T, t) - T + t)
-    tmp -= sigma**2/4/kappa * vasicek_B(kappa, T, t)**2
+    tmp = -(theta-sigma**2/2/kappa**2)*(vasicek_B(kappa, T, t) - T + t)
+    tmp += sigma**2/4/kappa * vasicek_B(kappa, T, t)**2
+    return(tmp)
 
+#------------------------------------------------------------------------------
+
+def vasicek_discount_curve(r0, theta, kappa, sigma, T = 10, N = 50):
+    t = np.linspace(0,T,N)
+    A = np.array([vasicek_A(theta, kappa, sigma, T) for T in t])
+    B = np.array([vasicek_B(kappa, T) for T in t])
     
+    tmp = np.exp(-A-B*r0)
+    
+    tmp = pd.DataFrame(data = tmp, index = t)
+    
+    return(tmp)
+
+#------------------------------------------------------------------------------
+
+def vasicek_yield_curve(r0, theta, kappa, sigma, T = 10, N = 50):
+    discount_curve = vasicek_discount_curve(r0, theta, kappa, sigma, T, N)
+    t = discount_curve.index
+    
+    y = [r0]
+    for x in t[1:]:
+        y.append(-np.log(discount_curve.loc[x,:].values[0])/x)
+    
+    tmp = pd.DataFrame(data = y, index = t)    
+
+    return(tmp)
+    
+    
+#------------------------------------------------------------------------------
 
 if __name__ == '__main__':
 
     r0, theta, kappa, sigma = [0.06, 0.08, 0.86, 0.01]
     
-    T , N, mc = [10., 200, 5]
+    T , N, mc = [25., 500, 5]
     
-    plot = False
+    plot = True
     
     rates = vasicek_process(r0, theta, kappa, sigma, T, N)
     for i in range(mc-1):
@@ -75,12 +114,24 @@ if __name__ == '__main__':
     means = vasicek_mean(r0, theta, kappa, sigma, T, N)
     lower, upper = vasicek_sd(r0, theta, kappa, sigma, T, N, alpha = .99)
     
-    if plot == True:
+    DFC = vasicek_discount_curve(r0, theta, kappa, sigma, T)    
+    YC = vasicek_yield_curve(r0, theta, kappa, sigma, T)
     
-        plt.plot(rates, alpha = 0.25)
-        plt.plot(means, c = 'red')
-        plt.plot(lower, c = 'red', linestyle = '--')
-        plt.plot(upper, c = 'red', linestyle = '--')
-        plt.axhline(theta, c = 'black', linestyle = ':')
-        plt.grid()
-        plt.tight_layout()
+    if plot == True:
+        
+        fig, axes = plt.subplots(3,1, sharex = True)
+        
+        axes[0].plot(rates, alpha = 0.25)
+        axes[0].plot(means, c = 'red')
+        axes[0].plot(lower, c = 'red', linestyle = '--')
+        axes[0].plot(upper, c = 'red', linestyle = '--')
+        axes[0].axhline(theta, c = 'black', linestyle = ':')
+        
+        axes[1].plot(DFC)
+        
+        axes[2].plot(YC)
+        
+        [x.grid() for x in axes]
+        fig.tight_layout()
+        
+
