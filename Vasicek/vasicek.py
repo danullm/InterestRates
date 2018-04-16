@@ -64,9 +64,11 @@ def vasicek_B(kappa, T, t = 0.):
         T = T-t
     return( (1-np.exp(-kappa*T))/kappa )
 
+def vasicek_B_prime(kappa, T):
+    return(1 - kappa*vasicek_B(kappa, T))
+
 #------------------------------------------------------------------------------
-    
-T = 1
+
     
 def vasicek_A(theta, kappa, sigma, T, t = 0.):
     if t > 0:
@@ -75,6 +77,9 @@ def vasicek_A(theta, kappa, sigma, T, t = 0.):
     tmp = -(theta-sigma**2/2/kappa**2)*(vasicek_B(kappa, T, t) - T + t)
     tmp += sigma**2/4/kappa * vasicek_B(kappa, T, t)**2
     return(tmp)
+
+def vasicek_A_prime(kappa, sigma, T):
+    return(kappa*vasicek_B(kappa, T) - sigma**2/2*vasicek_B(kappa, T))
 
 #------------------------------------------------------------------------------
 
@@ -108,8 +113,8 @@ def vasicek_forward_curve(r0, theta, kappa, sigma, T = 10, N = 50):
     A = np.array([vasicek_A(theta, kappa, sigma, T) for T in t])
     B = np.array([vasicek_B(kappa, T) for T in t])
     
-    tmp = kappa*theta*B
-    tmp += r0*(1 - sigma**2/2*B**2 - kappa*B)
+    tmp = kappa*theta*B - sigma**2/2*B**2
+    tmp += (1 - kappa*B)*r0
     
     tmp = pd.DataFrame(data = tmp, index = t)
     
@@ -124,7 +129,7 @@ if __name__ == '__main__':
     
     T , N, mc = [25., 500, 5]
     
-    plot = False
+    plot = True
     
     rates = vasicek_process(r0, theta, kappa, sigma, T, N)
     for i in range(mc-1):
