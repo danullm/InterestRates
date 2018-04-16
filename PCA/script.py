@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 ###############################################################################
 ###############################################################################
 
-data = pd.read_csv('SwissGovYields.csv', index_col = 0)
+data = pd.read_csv('SwissGovYields.csv', index_col = 0, parse_dates = True)
 
 data = data/100
 
