@@ -32,8 +32,6 @@ def svensson_forwards(beta0, beta1, beta2, beta3, tau1, tau2, T):
     
     return(tmp)
 
-
-
 #------------------------------------------------------------------------------
 
 if __name__ == '__main__':
