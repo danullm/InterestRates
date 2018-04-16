@@ -81,10 +81,10 @@ def vasicek_A(theta, kappa, sigma, T, t = 0.):
     tmp += sigma**2/4/kappa * vasicek_B(kappa, T, t)**2
     return(tmp)
 
-def vasicek_A_prime(kappa, sigma, T):
-    return(kappa*vasicek_B(kappa, T) - sigma**2/2*vasicek_B(kappa, T))
+def vasicek_A_prime(kappa, theta, sigma, T):
+    return(kappa*theta*vasicek_B(kappa, T) - sigma**2/2*vasicek_B(kappa, T))
 
-def vasicek_A_2prime(kappa, sigma, T):
+def vasicek_A_2prime(kappa, theta, sigma, T):
     tmp = kappa*theta*vasicek_B_prime(kappa, T)
     tmp -= sigma**2*vasicek_B(kappa, T)*vasicek_B_prime(kappa, T)
     return(tmp)
@@ -115,15 +115,22 @@ def vasicek_yield_curve(r0, theta, kappa, sigma, T = 10, N = 50):
 
     return(tmp)
     
-    
 def vasicek_forward_curve(r0, theta, kappa, sigma, T = 10, N = 50):
     t = np.linspace(0,T,N)
-    A = np.array([vasicek_A(theta, kappa, sigma, T) for T in t])
-    B = np.array([vasicek_B(kappa, T) for T in t])
+    A = vasicek_A(theta, kappa, sigma, t)
+    B = vasicek_B(kappa, t)
     
     tmp = kappa*theta*B - sigma**2/2*B**2
     tmp += (1 - kappa*B)*r0
     
+    tmp = pd.DataFrame(data = tmp, index = t)
+    
+    return(tmp)
+
+def vasicek_forward_curve(r0, theta, kappa, sigma, T = 10, N = 50):
+    t = np.linspace(0,T,N)
+    
+    tmp = vasicek_A_prime(kappa, theta, sigma, t) + vasicek_B_prime(kappa, t) * r0
     tmp = pd.DataFrame(data = tmp, index = t)
     
     return(tmp)
@@ -171,5 +178,4 @@ if __name__ == '__main__':
         fig.tight_layout()
         plt.show()
         
-
-    
+        

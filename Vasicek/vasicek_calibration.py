@@ -46,12 +46,10 @@ def Vaiscek_error_function(p0):
         return 500.0
     
     se = []
-    
     for t, x in forward_curve.iterrows():
         fy = x[0]
         model_value = vasicek_forward_curve(r0, theta, kappa, sigma, T = t, N = 2).loc[t,0]
         se.append((model_value - fy) ** 2)
-        
         
     RMSE = np.sqrt(sum(se) / len(se))
     min_RMSE = min(min_RMSE, RMSE)
@@ -71,7 +69,7 @@ if __name__ == '__main__':
     min_RMSE = 100  # minimal RMSE initialization
     
     
-    plot = False
+    plot = True
     
     names = {"BBK01.WZ9801": 'beta0',
              "BBK01.WZ9802": 'beta1', 
@@ -96,11 +94,11 @@ if __name__ == '__main__':
 
     parameters = parameters.reindex_axis(sorted(parameters.columns), axis = 1)    
     [beta0, beta1, beta2, beta3, tau1, tau2] = parameters.iloc[-1:].values[0]
-    
+    [beta0, beta1, beta2, beta3] = [x / 100 for x in [beta0, beta1, beta2, beta3]] 
     
     t = np.arange(1./12,10,1./12)
-    #yc = [svensson_yields(beta0, beta1, beta2, beta3, tau1, tau2, x)/100 for x in t]
-    fc = [svensson_forwards(beta0, beta1, beta2, beta3, tau1, tau2, x)/100 for x in t]
+    yc = [svensson_yields(beta0, beta1, beta2, beta3, tau1, tau2, x) for x in t]
+    fc = [svensson_forwards(beta0, beta1, beta2, beta3, tau1, tau2, x) for x in t]
     
     forward_curve = pd.DataFrame(data = fc, index = t)
     
@@ -111,19 +109,16 @@ if __name__ == '__main__':
         plt.legend()
         plt.show()
     
-    
-#    p0 = sop.brute(Vaiscek_error_function,
-#               ((-0.1, 0.1, 0.05),  #r0, 
-#                (-0.1, 0.1, 0.05),  #theta,  
-#                (0.1, 2., 0.05),      #kappa, 
-#                (0.01, 0.30, 0.05)),    #sigma
-#                finish=None)
-#               
-#    opt = sop.fmin(Vaiscek_error_function, p0, maxiter=5000, 
-#               maxfun=750, xtol=0.000001, ftol=0.000001)
+    p0 = sop.brute(Vaiscek_error_function,
+               ((-0.1, 0.1, 0.05),  #r0, 
+                (-0.1, 0.1, 0.05),  #theta,  
+                (0.1, 2., 0.05),      #kappa, 
+                (0.01, 0.30, 0.05)),    #sigma
+                finish=None)
+               
+    opt = sop.fmin(Vaiscek_error_function, p0, maxiter=5000, 
+               maxfun=750, xtol=0.000001, ftol=0.000001)
 
-    opt = np.array([-0.01020908,  0.02677791,  0.12066193,  0.00350423])
-    
     vasicek_fit = vasicek_forward_curve(opt[0], opt[1], opt[2], opt[3], T = max(t), N = 50)
     
     plt.plot(vasicek_fit, label = 'Model')
