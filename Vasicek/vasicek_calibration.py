@@ -112,17 +112,24 @@ if __name__ == '__main__':
         plt.show()
     
     
-    p0 = sop.brute(Vaiscek_error_function,
-               ((-0.1, 0.1, 0.05),  #r0, 
-                (-0.1, 0.1, 0.05),  #theta,  
-                (0.1, 2., 0.05),      #kappa, 
-                (0.01, 0.30, 0.05)),    #sigma
-                finish=None)
-               
-    opt = sop.fmin(Vaiscek_error_function, p0, maxiter=5000, 
-               maxfun=750, xtol=0.000001, ftol=0.000001)
+#    p0 = sop.brute(Vaiscek_error_function,
+#               ((-0.1, 0.1, 0.05),  #r0, 
+#                (-0.1, 0.1, 0.05),  #theta,  
+#                (0.1, 2., 0.05),      #kappa, 
+#                (0.01, 0.30, 0.05)),    #sigma
+#                finish=None)
+#               
+#    opt = sop.fmin(Vaiscek_error_function, p0, maxiter=5000, 
+#               maxfun=750, xtol=0.000001, ftol=0.000001)
+
+    opt = np.array([-0.01020908,  0.02677791,  0.12066193,  0.00350423])
     
     vasicek_fit = vasicek_forward_curve(opt[0], opt[1], opt[2], opt[3], T = max(t), N = 50)
     
-    plt.plot(vasicek_fit)
-    plt.scatter(t, fc)
+    plt.plot(vasicek_fit, label = 'Model')
+    plt.scatter(t, fc, label = 'Data', marker = '+', c = 'red')
+    plt.legend()
+    plt.grid()
+    plt.tight_layout()
+    
+
