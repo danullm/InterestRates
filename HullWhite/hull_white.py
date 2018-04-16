@@ -14,7 +14,7 @@ from scipy.stats import norm
 import sys
 sys.path.insert(0, '/home/daniel/Seafile/Dani/Python/InterestRates/Vasicek/')
 
-from vasicek import *
+
 
 #------------------------------------------------------------------------------
 
@@ -37,6 +37,8 @@ def svensson_forwards(beta0, beta1, beta2, beta3, tau1, tau2, T):
     tmp += beta3 * T2 * np.exp(-T2)
     
     return(tmp)
+
+
 
 #------------------------------------------------------------------------------
 
@@ -62,11 +64,9 @@ if __name__ == '__main__':
         url += "&its_csvFormat=en&its_fileFormat=csv&mode=its"
         
         tmp = pd.read_csv(url, index_col = 0, skiprows = 4, parse_dates = True, usecols = [0,1])
-        
         tmp.columns = [names[name]]
         
         parameters = pd.concat([parameters, tmp], axis = 1)        
-    
     
     parameters = parameters.reindex_axis(sorted(parameters.columns), axis = 1)    
     [beta0, beta1, beta2, beta3, tau1, tau2] = parameters.iloc[-1:].values[0]
