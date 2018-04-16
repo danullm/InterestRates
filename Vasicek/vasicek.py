@@ -67,8 +67,11 @@ def vasicek_B(kappa, T, t = 0.):
 def vasicek_B_prime(kappa, T):
     return(1 - kappa*vasicek_B(kappa, T))
 
-#------------------------------------------------------------------------------
+def vasicek_B_2prime(kappa, T):
+    return(-kappa + kappa**2*vasicek_B(kappa, T))
 
+
+#------------------------------------------------------------------------------
     
 def vasicek_A(theta, kappa, sigma, T, t = 0.):
     if t > 0:
@@ -80,6 +83,11 @@ def vasicek_A(theta, kappa, sigma, T, t = 0.):
 
 def vasicek_A_prime(kappa, sigma, T):
     return(kappa*vasicek_B(kappa, T) - sigma**2/2*vasicek_B(kappa, T))
+
+def vasicek_A_2prime(kappa, sigma, T):
+    tmp = kappa*theta*vasicek_B_prime(kappa, T)
+    tmp -= sigma**2*vasicek_B(kappa, T)*vasicek_B_prime(kappa, T)
+    return(tmp)
 
 #------------------------------------------------------------------------------
 

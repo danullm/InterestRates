@@ -32,6 +32,17 @@ def svensson_forwards(beta0, beta1, beta2, beta3, tau1, tau2, T):
     
     return(tmp)
 
+def svensson_forwards_partial(beta0, beta1, beta2, beta3, tau1, tau2, T):
+    T1 = T/tau1
+    T2 = T/tau2
+    tmp = -beta1/tau1*np.exp(-T1)
+    tmp += beta2 / tau1 * (np.exp(-T1))
+    tmp -= beta2 *T1 / tau1 * np.exp(-T1)
+    tmp += beta3 / tau2 * (np.exp(-T2))
+    tmp -= beta3 *T2 / tau2 * np.exp(-T2)
+    return(tmp)
+
+
 #------------------------------------------------------------------------------
 
 if __name__ == '__main__':
@@ -65,10 +76,13 @@ if __name__ == '__main__':
 
 #------------------------------------------------------------------------------
 
-    t = np.arange(1,10,1)
-    yc = [svensson_yields(beta0, beta1, beta2, beta3, tau1, tau2, x) for x in t]
+    t = np.arange(0,15,0.25)
+    
+    #yc = [svensson_yields(beta0, beta1, beta2, beta3, tau1, tau2, x) for x in t]
     fc = [svensson_forwards(beta0, beta1, beta2, beta3, tau1, tau2, x) for x in t]
-    plt.scatter(t, fc,  marker = '+')
+    #dfc = [svensson_forwards_partial(beta0, beta1, beta2, beta3, tau1, tau2, x) for x in t]
+    
+    plt.plot(t, fc,  marker = '+')
     plt.ylabel('f(0,T) / %')
     plt.xlabel('Maturity T')
     plt.legend()
