@@ -9,6 +9,7 @@ Created on Mon Apr 16 09:45:53 2018
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from scipy.integrate import quad
 import sys
 sys.path.insert(0, '/home/daniel/Seafile/Dani/Python/InterestRates/Svensson/')
 sys.path.insert(0, '/home/daniel/Seafile/Dani/Python/InterestRates/Vasicek/')
@@ -57,6 +58,7 @@ def hw_process_svensson(r0, theta, kappa, sigma, beta0, beta1, beta2, beta3, tau
     for i in range(N):
         dr = kappa*(theta_svensson(r0, theta, kappa, sigma, beta0, beta1, beta2, beta3, tau1, tau2, t)-rates[-1])*dt
         dr += sigma*np.random.normal(size = 1, scale = np.sqrt(dt))
+        dr = float(dr)
         t += dt
         rates.append(rates[-1] + dr)
     
@@ -90,10 +92,14 @@ if __name__ == '__main__':
         plt.tight_layout()
         
     
-    T , N, mc = [25., 500, 1]
+    T , N, mc = [25., 500, 20]
     
     rates = hw_process_svensson(r0, theta, kappa, sigma, beta0, beta1, beta2, beta3, tau1, tau2, T, N)
     for i in range(mc-1):
-        rates = pd.concat([rates, vasicek_process(r0, theta, kappa, sigma, T, N)], axis = 1)
+        rates = pd.concat([rates, hw_process_svensson(r0, theta, kappa, sigma, beta0, beta1, beta2, beta3, tau1, tau2, T, N)], axis = 1)
+
+
+    rate = rates.iloc[:,0]
+    rate.plot()
+    plt.plot(np.exp(-rate.cumsum()*rate.index[1]))
     
-    rates.plot()

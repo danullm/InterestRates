@@ -26,6 +26,7 @@ def vasicek_process(r0, theta, kappa, sigma, T = 1., N = 100, seed = 0):
     rates = [r0]
     for i in range(N):
         dr = kappa*(theta-rates[-1])*dt + sigma*np.random.normal(size = 1, scale = np.sqrt(dt))
+        dr = float(dr)
         rates.append(rates[-1] + dr)
     
     return(pd.DataFrame(data = rates, index = [x*dt for x in range(N+1)] ))
@@ -139,7 +140,7 @@ if __name__ == '__main__':
     
     T , N, mc = [25., 500, 5]
     
-    plot = True
+    plot = False
     
     rates = vasicek_process(r0, theta, kappa, sigma, T, N)
     for i in range(mc-1):
@@ -174,3 +175,6 @@ if __name__ == '__main__':
         plt.show()
         
         
+    rate = rates.iloc[:,0]
+    rate.plot()
+    plt.plot(np.exp(-rate.cumsum()*rate.index[1]))
