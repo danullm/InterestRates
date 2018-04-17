@@ -33,8 +33,8 @@ def phi_svensson(r0, theta, kappa, sigma, beta0, beta1, beta2, beta3, tau1, tau2
     phi2 = f0 - vasicek
     return(phi2)
     
-
-
+def phi_prime_svensson(r0, theta, kappa, sigma, beta0, beta1, beta2, beta3, tau1, tau2, t):
+    return(t)
 
 if __name__ == '__main__':
     

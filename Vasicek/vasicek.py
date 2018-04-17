@@ -101,6 +101,9 @@ def vasicek_discount_curve(r0, theta, kappa, sigma, T = 10, N = 50):
     
     return(tmp)
 
+def vasicek_discount_factor(r0, theta, kappa, sigma, T, t):
+    return(np.exp( -vasicek_A(theta, kappa, sigma, T, t) - vasicek_B(kappa, T, t)*r0 ))
+
 #------------------------------------------------------------------------------
 
 def vasicek_yield_curve(r0, theta, kappa, sigma, T = 10, N = 50):
@@ -127,13 +130,13 @@ def vasicek_forward_curve(r0, theta, kappa, sigma, T = 10, N = 50):
     
     return(tmp)
 
-def vasicek_forward_curve(r0, theta, kappa, sigma, T = 10, N = 50):
-    t = np.linspace(0,T,N)
-    
-    tmp = vasicek_A_prime(kappa, theta, sigma, t) + vasicek_B_prime(kappa, t) * r0
-    tmp = pd.DataFrame(data = tmp, index = t)
-    
-    return(tmp)
+#def vasicek_forward_curve(r0, theta, kappa, sigma, T = 10, N = 50):
+#    t = np.linspace(0,T,N)
+#    
+#    tmp = vasicek_A_prime(kappa, theta, sigma, t) + vasicek_B_prime(kappa, t) * r0
+#    tmp = pd.DataFrame(data = tmp, index = t)
+#    
+#    return(tmp)
 
     
 #------------------------------------------------------------------------------
