@@ -76,7 +76,6 @@ def vasicek_B_2prime(kappa, T):
 def vasicek_A(theta, kappa, sigma, T, t = 0.):
     if t > 0:
         T = T-t
-       
     tmp = -(theta-sigma**2/2/kappa**2)*(vasicek_B(kappa, T, t) - T + t)
     tmp += sigma**2/4/kappa * vasicek_B(kappa, T, t)**2
     return(tmp)
@@ -95,10 +94,8 @@ def vasicek_discount_curve(r0, theta, kappa, sigma, T = 10, N = 50):
     t = np.linspace(0,T,N)
     A = np.array([vasicek_A(theta, kappa, sigma, T) for T in t])
     B = np.array([vasicek_B(kappa, T) for T in t])
-    
     tmp = np.exp(-A-B*r0)
     tmp = pd.DataFrame(data = tmp, index = t)
-    
     return(tmp)
 
 def vasicek_discount_factor(r0, theta, kappa, sigma, T, t):
@@ -109,34 +106,29 @@ def vasicek_discount_factor(r0, theta, kappa, sigma, T, t):
 def vasicek_yield_curve(r0, theta, kappa, sigma, T = 10, N = 50):
     discount_curve = vasicek_discount_curve(r0, theta, kappa, sigma, T, N)
     t = discount_curve.index
-    
     y = [r0]
     for x in t[1:]:
         y.append(-np.log(discount_curve.loc[x,:].values[0])/x)
-    
     tmp = pd.DataFrame(data = y, index = t)    
-
     return(tmp)
     
-def vasicek_forward_curve(r0, theta, kappa, sigma, T = 10, N = 50):
-    t = np.linspace(0,T,N)
-    A = vasicek_A(theta, kappa, sigma, t)
-    B = vasicek_B(kappa, t)
-    
-    tmp = kappa*theta*B - sigma**2/2*B**2
-    tmp += (1 - kappa*B)*r0
-    
-    tmp = pd.DataFrame(data = tmp, index = t)
-    
-    return(tmp)
-
 #def vasicek_forward_curve(r0, theta, kappa, sigma, T = 10, N = 50):
 #    t = np.linspace(0,T,N)
+#    A = vasicek_A(theta, kappa, sigma, t)
+#    B = vasicek_B(kappa, t)
 #    
-#    tmp = vasicek_A_prime(kappa, theta, sigma, t) + vasicek_B_prime(kappa, t) * r0
+#    tmp = kappa*theta*B - sigma**2/2*B**2
+#    tmp += (1 - kappa*B)*r0
+#    
 #    tmp = pd.DataFrame(data = tmp, index = t)
 #    
 #    return(tmp)
+
+def vasicek_forward_curve(r0, theta, kappa, sigma, T = 10, N = 50):
+    t = np.linspace(0,T,N)
+    tmp = vasicek_A_prime(kappa, theta, sigma, t) + vasicek_B_prime(kappa, t) * r0
+    tmp = pd.DataFrame(data = tmp, index = t)
+    return(tmp)
 
     
 #------------------------------------------------------------------------------
