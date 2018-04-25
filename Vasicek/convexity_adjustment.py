@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import sympy as sp
+
 from vasicek import *
 
 
@@ -70,8 +71,10 @@ if __name__ == '__main__':
     sigma = 0.01 
     
     t = 0.
-    T0 = 0.5
-    T1 = T0 + 0.25
+    T0 = 0
+    T1 = 1
+    
+    vasicek_convexity_adjustment(r0, theta, kappa, sigma, t, T0, T1)*100*100
     
     sigma = np.linspace(0,0.02)
     
