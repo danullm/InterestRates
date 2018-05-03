@@ -9,6 +9,7 @@ Created on Wed Apr 11 15:26:12 2018
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from scipy.optimize import minimize
 
 #------------------------------------------------------------------------------
 
@@ -64,29 +65,46 @@ def CIR_yield_curve(r0, theta, kappa, sigma, T = 10, N = 50):
 
 if __name__ == '__main__':
 
-    r0, theta, kappa, sigma = [0.06, 0.08, 0.86, 0.01]
+    r0, theta, kappa, sigma = [0.05, 0.08, 0.2, 0.1]
+#    
+#    T , N, mc = [10., 200, 5]
+#    
+#    plot = True
+#    
+#    rates = CIR_process(r0, theta, kappa, sigma, T, N)
+#    for i in range(mc-1):
+#        rates = pd.concat([rates, CIR_process(r0, theta, kappa, sigma, T, N)], axis = 1)
+#
+#    DFC = CIR_discount_curve(r0, theta, kappa, sigma, T)    
+#    YC = CIR_yield_curve(r0, theta, kappa, sigma, T)
+#    
+#    if plot == True:
+#        
+#        fig, axes = plt.subplots(3,1, sharex = True)
+#        
+#        axes[0].plot(rates, alpha = 0.25)
+#        axes[0].axhline(theta, c = 'black', linestyle = ':')
+#        
+#        axes[1].plot(DFC)
+#        
+#        axes[2].plot(YC)
+#        
+#        [x.grid() for x in axes]
+#        fig.tight_layout()
     
-    T , N, mc = [10., 200, 5]
+    kappa = 0.2
+    sigma = 0.1
+    r0 = 5./100
+    L = 5./100
     
-    plot = True
-    
-    rates = CIR_process(r0, theta, kappa, sigma, T, N)
-    for i in range(mc-1):
-        rates = pd.concat([rates, CIR_process(r0, theta, kappa, sigma, T, N)], axis = 1)
+#    def my_fun(theta):
+#        global r0, kappa, sigma, L
+#        T = 1
+#        N = 2
+#        return((CIR_yield_curve(r0, theta, kappa, sigma, T, N).iloc[1,0]-L)**2)
 
-    DFC = CIR_discount_curve(r0, theta, kappa, sigma, T)    
-    YC = CIR_yield_curve(r0, theta, kappa, sigma, T)
-    
-    if plot == True:
-        
-        fig, axes = plt.subplots(3,1, sharex = True)
-        
-        axes[0].plot(rates, alpha = 0.25)
-        axes[0].axhline(theta, c = 'black', linestyle = ':')
-        
-        axes[1].plot(DFC)
-        
-        axes[2].plot(YC)
-        
-        [x.grid() for x in axes]
-        fig.tight_layout()
+    def my_fun(theta):
+        return((CIR_discount_curve(r0, theta, kappa, sigma, 1, N = 2).iloc[1,0]**-1-1 - 0.05)**2)
+
+    res = minimize(my_fun, 0.05)
+    print(res.x)

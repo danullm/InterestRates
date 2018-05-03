@@ -11,16 +11,18 @@ import numpy as np
 import matplotlib.pyplot as plt
 import dateutil.relativedelta
 
-def pseudoinverse(today, dates, quotes, types, rates = False):
+def pseudoinverse(today, dates, quotes, types, rates = False, months = 1):
     if rates != False:
         data = pd.DataFrame({'Date': dates, 'Source': types, 
-                             'Quote': quotes, 'Rate': rates})
+                             'Quote': quotes, 'Rate': quotes})
     else:
         data = pd.DataFrame({'Date': dates, 'Source': types, 
                              'Quote': quotes})
 
     C = pd.DataFrame()
     p = np.zeros(len(data))
+
+    row = data.iloc[1,]
 
     for row in data.iterrows():
         i = row[0]
@@ -48,7 +50,7 @@ def pseudoinverse(today, dates, quotes, types, rates = False):
             p[i] = 1.
             
         if typ == 'F':
-            prev_date = date - dateutil.relativedelta.relativedelta(months=1)
+            prev_date = date - dateutil.relativedelta.relativedelta(months=months)
             delta = (date-prev_date).days/360.
             C_tmp = pd.DataFrame({prev_date: -1., date: 1. + delta*rate}, index = [i])
             C = pd.concat([C, C_tmp], axis=0, join='outer').drop_duplicates().reset_index(drop=True)
@@ -65,6 +67,9 @@ def pseudoinverse(today, dates, quotes, types, rates = False):
                     break
                 else:
                     cf_dates.extend([date_tmp])
+            
+            if len(cf_dates) == 1:
+                cf_dates.extend([today])
             
             cf_dates = sorted(cf_dates)
             deltas = [x.days/360 for x in np.diff(cf_dates)]

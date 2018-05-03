@@ -16,14 +16,16 @@ from mpl_toolkits.mplot3d import Axes3D
 #------------------------------------------------------------------------------
 
 def hw_process_spline(r0, kappa, sigma, forward_spl, T = 5., N = 100, seed = 0):
+    
     if seed != 0:
         np.random.seed(seed)
     dt = T/N
+    dW = np.random.normal(size = N, scale = np.sqrt(dt))
     t = 0.
     rates = [r0]
     for i in range(N):
         dr = kappa*( theta_hw(forward_spl, kappa, sigma, t) / kappa - rates[-1] )*dt
-        dr += sigma*np.random.normal(size = 1, scale = np.sqrt(dt))
+        dr += sigma*dW[i]
         dr = float(dr)
         t += dt
         rates.append(rates[-1] + dr)
@@ -57,7 +59,7 @@ def hw_A(kappa, sigma, forward_spl, T, t = 0.):
     
     
 def hw_P(kappa, sigma, forward_spl, r0, T, t = 0.):
-    return( hw_A(kappa, sigma, forward_spl, T, t) * np.exp( -hw_B(kappa, T, t) * r0 ) )
+    return( float(hw_A(kappa, sigma, forward_spl, T, t) * np.exp( -hw_B(kappa, T, t) * r0 ) ) ) 
     
     
 def forward_integration(forward_spl, x):
